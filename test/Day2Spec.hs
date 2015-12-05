@@ -18,8 +18,13 @@ spec = do
     it "Handles multiple lines of input" $ do
       day2 (unlines ["1x1x10", "2x3x4"]) == 43 + 58
 
-
   describe "day2'" $ do
-    it "is defined" $ do
-      day2' "" == 1
+    it "A present with dimensions 2x3x4 requires 2+2+3+3 = 10 feet of ribbon to wrap the present plus 2*3*4 = 24 feet of ribbon for the bow, for a total of 34 feet." $ do
+      day2' "2x3x4" == 34
+
+    it " A present with dimensions 1x1x10 requires 1+1+1+1 = 4 feet of ribbon to wrap the present plus 1*1*10 = 10 feet of ribbon for the bow, for a total of 14 feet." $ do
+      day2' "1x1x10" == 14
+
+    it "Handles multiple lines of input" $ do
+      day2' (unlines ["2x3x4", "1x1x10"]) == 34 + 14
 
