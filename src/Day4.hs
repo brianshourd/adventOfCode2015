@@ -27,7 +27,10 @@ day4' input = fst . head . filter (startsWithZeros 6 . snd) . map (applyHash inp
 -- Input
 run :: IO ()
 run = do
-    putStrLn "Day 4 results: "
-    let input = "yzbqklnj"
-    putStrLn $ "  " ++ show (day4 input)
-    putStrLn $ "  " ++ show (day4' input)
+    --putStrLn "Day 4 results: "
+    --let input = "yzbqklnj"
+    --putStrLn $ "  " ++ show (day4 input)
+    --putStrLn $ "  " ++ show (day4' input)
+    putStrLn "Day 4 results (cached): "
+    putStrLn $ "  " ++ show 282749
+    putStrLn $ "  " ++ show 9962624
