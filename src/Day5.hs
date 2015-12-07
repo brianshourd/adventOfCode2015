@@ -1,4 +1,4 @@
-module Day5 (day5, day5', run, contains3Vowels, containsDouble) where
+module Day5 (day5, day5', run, containsPairTwice) where
 
 import Text.Regex.TDFA
 
@@ -14,15 +14,25 @@ contains3Vowels input = input =~ "[aeiou].*[aeiou].*[aeiou]"
 containsDouble :: String -> Bool
 --Why isn't this working?
 --containsDouble input = input =~ "(.)\\1"
-containsDouble [] = False
-containsDouble (_:[]) = False
-containsDouble (x:y:rest) = x == y || containsDouble (y:rest)
+containsDouble = any (uncurry (==)) . adjacentPairs
+
+adjacentPairs :: [a] -> [(a, a)]
+adjacentPairs [] = []
+adjacentPairs s  = zip s $ tail s
 
 isntBlacklisted :: String -> Bool
 isntBlacklisted input = not $ input =~ "(ab|cd|pq|xy)"
 
 day5' :: String -> Int
 day5' = undefined
+
+containsPairTwice :: String -> Bool
+containsPairTwice = containsPairTwice' . adjacentPairs
+    where
+        containsPairTwice' :: [(Char, Char)] -> Bool
+        containsPairTwice' []         = False
+        containsPairTwice' (x:[])     = False
+        containsPairTwice' (x:y:rest) = (elem x rest) || containsPairTwice' (y:rest)
 
 -- Input
 run :: IO ()
