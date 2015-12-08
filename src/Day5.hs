@@ -24,15 +24,28 @@ isntBlacklisted :: String -> Bool
 isntBlacklisted input = not $ input =~ "(ab|cd|pq|xy)"
 
 day5' :: String -> Int
-day5' = undefined
+day5' = length . filter isNice' . lines
+
+isNice' :: String -> Bool
+isNice' input = and $ map ($ input) [containsPairTwice, containsRepeatBetween]
 
 containsPairTwice :: String -> Bool
 containsPairTwice = containsPairTwice' . adjacentPairs
     where
         containsPairTwice' :: [(Char, Char)] -> Bool
-        containsPairTwice' []         = False
-        containsPairTwice' (x:[])     = False
-        containsPairTwice' (x:y:rest) = (elem x rest) || containsPairTwice' (y:rest)
+        containsPairTwice' = matchSkipLoop elem
+
+containsRepeatBetween :: String -> Bool
+containsRepeatBetween = matchSkipLoop equalsHead
+    where
+        equalsHead :: Char -> [Char] -> Bool
+        equalsHead _ [] = False
+        equalsHead x (y:ys) = x == y
+
+matchSkipLoop :: (a -> [a] -> Bool) -> [a] -> Bool
+matchSkipLoop f []         = False
+matchSkipLoop f (x:[])     = False
+matchSkipLoop f (x:y:rest) = (f x rest) || matchSkipLoop f (y:rest)
 
 -- Input
 run :: IO ()
@@ -40,4 +53,4 @@ run = do
     putStrLn "Day 5 results: "
     input <- readFile "inputs/day5.txt"
     putStrLn $ "  " ++ show (day5 input)
-    --putStrLn $ "  " ++ show (day5' input)
+    putStrLn $ "  " ++ show (day5' input)
