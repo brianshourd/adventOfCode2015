@@ -28,10 +28,7 @@ isNice' :: String -> Bool
 isNice' input = and $ map ($ input) [containsPairTwice, containsRepeatBetween]
 
 containsPairTwice :: String -> Bool
-containsPairTwice = containsPairTwice' . adjacentPairs
-    where
-        containsPairTwice' :: [(Char, Char)] -> Bool
-        containsPairTwice' = matchSkipLoop elem
+containsPairTwice = matchSkipLoop elem . adjacentPairs
 
 containsRepeatBetween :: String -> Bool
 containsRepeatBetween = matchSkipLoop equalsHead
