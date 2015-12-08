@@ -6,13 +6,12 @@ import Data.Attoparsec.ByteString.Char8
 import Data.ByteString.Char8 (pack)
 
 day6 :: String -> Int
-day6 input = case parseOnly parseInstructions (pack input) of
-    (Right instructions) -> length . filter (== On) . map (flip applyInstructions $ instructions) $ [ (x, y) | x <- [0..999], y <- [0..999] ]
-    _ -> -1
+day6 = length . filter (== On) . parseAndApply (flip applyInstructions)
 
-test input = case parseOnly parseInstructions (pack input) of
-    (Right instructions) -> length [ (x, y) | x <- [0..999], y <- [0..999] ]
-    _ -> undefined
+parseAndApply :: ([Instruction] -> Position -> a) -> String -> [a]
+parseAndApply f input = case parseOnly parseInstructions (pack input) of
+    (Right instructions) -> map (f instructions) [ (x, y) | x <- [0..999], y <- [0..999] ]
+    _ -> []
 
 data Instruction = Instruction Operation BulbRange deriving (Show, Eq)
 data Operation = TurnOn | TurnOff | Toggle deriving (Show, Eq)
@@ -70,13 +69,25 @@ applyOperation Toggle  On  = Off
 applyOperation Toggle  Off = On
 
 day6' :: String -> Int
-day6' = undefined
+day6' = sum . parseAndApply (flip applyInstructions')
+
+type State' = Int
+
+applyInstructions' :: Position -> [Instruction] -> State'
+applyInstructions' p = foldl (flip $ applyOperation' . getOperation) 0 . filter (inRange p . getRange)
+
+applyOperation' :: Operation -> State' -> State'
+applyOperation' TurnOff 0 = 0
+applyOperation' TurnOff x = x - 1
+applyOperation' TurnOn  x = x + 1
+applyOperation' Toggle  x = x + 2
 
 -- Input
 run :: IO ()
 run = do
-    putStrLn "Day 6 results: "
-    input <- readFile "inputs/day6.txt"
-    putStrLn $ "  377891 (cached)"
+    putStrLn "Day 6 results (cached): "
+    putStrLn $ "  377891"
+    putStrLn $ "  14110788"
+    --input <- readFile "inputs/day6.txt"
     --putStrLn $ "  " ++ show (day6 input)
     --putStrLn $ "  " ++ show (day6' input)
