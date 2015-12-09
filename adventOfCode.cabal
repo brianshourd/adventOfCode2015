@@ -30,6 +30,7 @@ library
                      , regex-tdfa
                      , safe
                      , split
+                     , text
   default-language:    Haskell2010
 
 executable main
