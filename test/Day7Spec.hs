@@ -39,5 +39,8 @@ spec = do
         ]) == complement 1
 
   describe "day7'" $ do
-    it "is defined" $ do
-      day7' "something" /= undefined
+    it "works the same as day7 when there is no b wire" $ do
+      day7' (unlines ["123 -> e", "NOT e -> a"]) == complement 123
+
+    it "runs twice, the second time with the value of a replacing b" $ do
+      day7' (unlines ["123 -> b", "NOT b -> a"]) == 123

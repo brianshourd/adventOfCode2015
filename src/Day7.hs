@@ -133,7 +133,15 @@ resolve' store f ref = case M.lookup ref store of
     Nothing   -> Left $ "Failed to resolve " ++ (unpack ref)
 
 day7' :: String -> Int
-day7' = undefined
+day7' input = case parseAndApply' input of
+    (Right i) -> i
+    _         -> -1
+
+parseAndApply' input = do
+    initialInstructions <- parseOnly parseInstructions (pack input)
+    aSignal <- resolve initialInstructions "a"
+    let modifiedInstructions = M.insert "b" (SignalEx aSignal) initialInstructions
+    resolve modifiedInstructions "a"
 
 -- Input
 run :: IO ()
@@ -141,4 +149,4 @@ run = do
     putStrLn "Day 7 results: "
     input <- readFile "inputs/day7.txt"
     putStrLn $ "  " ++ show (day7 input)
-    --putStrLn $ "  " ++ show (day7' input)
+    putStrLn $ "  " ++ show (day7' input)
