@@ -48,7 +48,3 @@ spec = do
 
     it "The next password after ghijklmn is ghjaabcc, because you eventually skip all the passwords that start with ghi..., since i is not allowed." $ do
       day11 "ghijklmn" == "ghjaabcc"
-
-  describe "day11'" $ do
-    it "is defined" $ do
-      day11' "something" /= undefined
