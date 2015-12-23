@@ -39,6 +39,9 @@ spec = do
     it "fails on abbcegjk" $ do
       requirement3 "abbcegjk" == False
 
+    it "succeeds on abccccde" $ do
+      requirement3 "abccccde" == True
+
   describe "day11" $ do
     it "The next password after abcdefgh is abcdffaa." $ do
       day11 "abcdefgh" == "abcdffaa"
