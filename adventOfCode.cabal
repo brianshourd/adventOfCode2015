@@ -27,6 +27,8 @@ library
                      , Day10
                      , Day11
                      , Day12
+                     , Day13
+                     , Graph
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , attoparsec
