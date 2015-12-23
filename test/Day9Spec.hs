@@ -1,6 +1,5 @@
 module Day9Spec (spec) where
 
-import Data.Bits
 import Day9
 import Test.Hspec
 
