@@ -53,7 +53,7 @@ runFor
 runFor t (Reindeer _ speed flyTime restTime) =
     snd . head . filter ((== 0) . fst) $ iterate cycle (t, 0)
   where
-    cycle = (go 0 restTime) . (go speed flyTime)
+    cycle = go 0 restTime . go speed flyTime
     go rate time (secondsLeft, dist)
         | secondsLeft <= time = (0, secondsLeft * rate + dist)
         | otherwise           = (secondsLeft - time, time * rate + dist)
@@ -62,12 +62,6 @@ day14 :: String -> Int
 day14 input = case parseInput input of
     (Left _)   -> -1
     (Right rs) -> leadReindeer rs 2503
-
-data State = State
-    { reindeer :: Reindeer
-    , distance :: Int
-    , points   :: Int
-    }
 
 pointResults :: [Reindeer] -> Int -> [Int]
 pointResults rs t =
@@ -85,7 +79,7 @@ pointResults rs t =
         . scanl (+) 0
         . concat
         . repeat
-        $ concat [take flyTime $ repeat speed, take restTime $ repeat 0]
+        $ replicate flyTime speed ++ replicate restTime 0
     toPoints :: [Int] -> [Int]
     toPoints positions = map (\p -> if p == maxPos then 1 else 0) positions
       where
