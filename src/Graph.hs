@@ -6,8 +6,8 @@ module Graph
     , traversalWeight
     , NodeSet
     , nodes
---    , prependNode
     , bestTraversal
+    , bestTraversal'
     ) where
 
 import Data.Function (on)
@@ -32,7 +32,7 @@ instance Ord t => Ord (Edge t) where
     compare (Edge s1 e1) (Edge s2 e2) = compare (sort [s1, e1]) (sort [s2, e2])
 type EdgeWeightMap t w = Map (Edge t) w
 type NodeSet t = Set (Node t)
-data Traversal t w = Traversal [Node t] w
+data Traversal t w = Traversal [Node t] w deriving Show
 
 -- Basic graph functionality
 traversalWeight :: Traversal t w -> w
@@ -41,49 +41,51 @@ traversalWeight (Traversal _ w) = w
 nodes :: Ord t => EdgeWeightMap t w -> NodeSet t
 nodes = S.fromList . concat . map (\(Edge s1 e1) -> [s1, e1]) . M.keys
 
--- Prepend a node to a traversal, increasing the weight
+-- Prepend a node to a traversal
 prependNode :: (Ord t, Monoid w)
     => EdgeWeightMap t w
-    -> Node t
+    -> Maybe (Node t)
     -> Traversal t w
     -> Maybe (Traversal t w)
-prependNode g n (Traversal [] w)     = Just $ Traversal [n] w
-prependNode g n (Traversal (x:xs) w) =
+prependNode _ Nothing  t                    = Just t
+prependNode g (Just n) (Traversal [] w)     = Just $ Traversal [n] w
+prependNode g (Just n) (Traversal (x:xs) w) =
     fmap (Traversal (n:x:xs) . mappend w) $ M.lookup (Edge x n) g
+
+-- Append a node to a traversal
+appendNode :: (Ord t, Monoid w)
+    => EdgeWeightMap t w
+    -> Maybe (Node t)
+    -> Traversal t w
+    -> Maybe (Traversal t w)
+appendNode g n (Traversal xs w) =
+    let t = prependNode g n (Traversal (reverse xs) w) in
+        case t of
+            Nothing -> Nothing
+            Just (Traversal ys w') -> Just $ Traversal (reverse ys) w'
 
 -- Find the best complete traversal, if one exists
 bestTraversal :: (Ord t, Monoid w)
     => EdgeWeightMap t w    -- source data
     -> (w -> w -> Ordering) -- comparison function
     -> Maybe (Traversal t w)
-bestTraversal sourceData comp =
-    maximumByMay (comp `on` traversalWeight) . bestTraversals sourceData comp $ nodes sourceData
+bestTraversal g comp =
+    bestTraversal' g comp Nothing Nothing (nodes g)
 
--- Find the best traversal that starts at the given node and visits every one of
--- the other nodes provided, if one exists
 bestTraversal' :: (Ord t, Monoid w)
     => EdgeWeightMap t w    -- source data
     -> (w -> w -> Ordering) -- comparison function
-    -> Node t               -- start node
-    -> NodeSet t            -- other nodes to visit
-    -> Maybe (Traversal t w)
-bestTraversal' sourceData comp s ns =
-    maximumByMay (comp `on` traversalWeight)
-    . catMaybes
-    . map (prependNode sourceData s)
-    $ bestTraversals sourceData comp ns
-
--- Find the best complete traversals for just the nodes provided, one for each
--- starting node
-bestTraversals :: (Ord t, Monoid w)
-    => EdgeWeightMap t w    -- source data
-    -> (w -> w -> Ordering) -- comparison function
+    -> Maybe (Node t)       -- optional start node
+    -> Maybe (Node t)       -- optional end node
     -> NodeSet t            -- nodes to visit
-    -> [Traversal t w]
-bestTraversals sourceData comp ns =
+    -> Maybe (Traversal t w)
+bestTraversal' g comp s e ns =
     if null ns
-    then [Traversal [] mempty]
-    else catMaybes . map bestFrom . S.elems $ ns
-    where
-        bestFrom n = bestTraversal' sourceData comp n (S.delete n ns)
-
+    then appendNode g e (Traversal [] mempty) >>= prependNode g s
+    else
+        maximumByMay (comp `on` traversalWeight)
+        . catMaybes
+        . map (>>= prependNode g s)
+        . map (\n -> bestTraversal' g comp (Just n) e (S.delete n ns))
+        . S.elems
+        $ ns
