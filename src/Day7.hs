@@ -1,14 +1,26 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Day7 (day7, day7', run) where
 
-import Control.Applicative
+import Control.Applicative ((<|>), optional)
 import Control.Monad (liftM2)
 import Data.Attoparsec.Text
-import Data.Bits
+    ( Parser
+    , char
+    , choice
+    , decimal
+    , endOfLine
+    , isEndOfLine
+    , isHorizontalSpace
+    , many'
+    , parseOnly
+    , string
+    , takeTill
+    )
+import Data.Bits ((.&.), (.|.), complement, shiftL, shiftR)
 import Data.Function (fix)
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as M
-import qualified Data.Map.Lazy as ML
+import qualified Data.Map.Strict as Map (fromList, insert, keysSet, lookup)
+import qualified Data.Map.Lazy as LazyMap ((!), fromSet)
 import Data.Set (Set)
 import Data.Text (Text, pack, unpack)
 
@@ -46,7 +58,7 @@ type Instruction = (Reference, Expression)
 type Instructions = Map Reference Expression
 
 parseInstructions :: Parser Instructions
-parseInstructions = fmap M.fromList . many' $ parseInstruction <* option () endOfLine
+parseInstructions = fmap Map.fromList . many' $ parseInstruction <* optional endOfLine
 
 parseInstruction :: Parser Instruction
 parseInstruction = do
@@ -122,15 +134,15 @@ evaluate res (JunctionEx op ex1 ex2) = liftM2 junctionFunc (evaluate res ex1) (e
 -- and returns the signal on that wire. Intermediate calculations are memoized,
 -- so that the calculation actually finishes.
 resolve :: Instructions -> Reference -> Either String Int
-resolve store = fix $ memoize (M.keysSet store) . resolve' store
+resolve store = fix $ memoize (Map.keysSet store) . resolve' store
 
 memoize :: Set Reference -> (Reference -> a) -> Reference -> a
-memoize keys f key = (ML.fromSet f keys) ML.! key
+memoize keys f key = LazyMap.fromSet f keys LazyMap.! key
 
 resolve' :: Instructions -> (Reference -> Either String Int) -> Reference -> Either String Int
-resolve' store f ref = case M.lookup ref store of
+resolve' store f ref = case Map.lookup ref store of
     (Just ex) -> evaluate f ex
-    Nothing   -> Left $ "Failed to resolve " ++ (unpack ref)
+    Nothing   -> Left $ "Failed to resolve " ++ unpack ref
 
 day7' :: String -> Int
 day7' input = case parseAndApply' input of
@@ -140,7 +152,7 @@ day7' input = case parseAndApply' input of
 parseAndApply' input = do
     initialInstructions <- parseOnly parseInstructions (pack input)
     aSignal <- resolve initialInstructions "a"
-    let modifiedInstructions = M.insert "b" (SignalEx aSignal) initialInstructions
+    let modifiedInstructions = Map.insert "b" (SignalEx aSignal) initialInstructions
     resolve modifiedInstructions "a"
 
 -- Input

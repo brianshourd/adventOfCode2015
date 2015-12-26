@@ -11,8 +11,8 @@ module Graph
     ) where
 
 import Data.Function (on)
+import Data.Maybe (mapMaybe)
 import Data.List (sort)
-import Data.Maybe (catMaybes)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import Data.Set (Set)
@@ -39,7 +39,7 @@ traversalWeight :: Traversal t w -> w
 traversalWeight (Traversal _ w) = w
 
 nodes :: Ord t => EdgeWeightMap t w -> NodeSet t
-nodes = S.fromList . concat . map (\(Edge s1 e1) -> [s1, e1]) . M.keys
+nodes = S.fromList . concatMap (\(Edge s1 e1) -> [s1, e1]) . M.keys
 
 -- Prepend a node to a traversal
 prependNode :: (Ord t, Monoid w)
@@ -50,7 +50,7 @@ prependNode :: (Ord t, Monoid w)
 prependNode _ Nothing  t                    = Just t
 prependNode g (Just n) (Traversal [] w)     = Just $ Traversal [n] w
 prependNode g (Just n) (Traversal (x:xs) w) =
-    fmap (Traversal (n:x:xs) . mappend w) $ M.lookup (Edge x n) g
+    (Traversal (n:x:xs) . mappend w) <$> M.lookup (Edge x n) g
 
 -- Append a node to a traversal
 appendNode :: (Ord t, Monoid w)
@@ -84,8 +84,9 @@ bestTraversal' g comp s e ns =
     then appendNode g e (Traversal [] mempty) >>= prependNode g s
     else
         maximumByMay (comp `on` traversalWeight)
-        . catMaybes
-        . map (>>= prependNode g s)
-        . map (\n -> bestTraversal' g comp (Just n) e (S.delete n ns))
+        . mapMaybe
+            ( (>>= prependNode g s)
+            . (\n -> bestTraversal' g comp (Just n) e (S.delete n ns))
+            )
         . S.elems
         $ ns

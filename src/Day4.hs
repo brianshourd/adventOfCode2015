@@ -10,7 +10,7 @@ day4 :: String -> Int
 day4 input = fst . head . filter (startsWithZeros 5 . snd) . map (applyHash input) $ [1..]
 
 applyHash :: String -> Int -> (Int, ByteString)
-applyHash prefix x = (x, hash . pack $ prefix ++ (show x))
+applyHash prefix x = (x, hash . pack $ prefix ++ show x)
 
 startsWithZeros :: Int -> ByteString -> Bool
 startsWithZeros n b = startsWithZeros' n $ unpack b

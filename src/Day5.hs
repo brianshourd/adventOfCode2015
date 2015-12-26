@@ -1,12 +1,12 @@
 module Day5 (day5, day5', run) where
 
-import Text.Regex.TDFA
+import Text.Regex.TDFA ((=~))
 
 day5 :: String -> Int
 day5 = length . filter isNice . lines
 
 isNice :: String -> Bool
-isNice input = and $ map ($ input) [contains3Vowels, containsDouble, isntBlacklisted]
+isNice input = all ($ input) [contains3Vowels, containsDouble, isntBlacklisted]
 
 contains3Vowels :: String -> Bool
 contains3Vowels input = input =~ "[aeiou].*[aeiou].*[aeiou]"
@@ -25,7 +25,7 @@ day5' :: String -> Int
 day5' = length . filter isNice' . lines
 
 isNice' :: String -> Bool
-isNice' input = and $ map ($ input) [containsPairTwice, containsRepeatBetween]
+isNice' input = all ($ input) [containsPairTwice, containsRepeatBetween]
 
 containsPairTwice :: String -> Bool
 containsPairTwice = matchSkipLoop elem . adjacentPairs
@@ -33,14 +33,14 @@ containsPairTwice = matchSkipLoop elem . adjacentPairs
 containsRepeatBetween :: String -> Bool
 containsRepeatBetween = matchSkipLoop equalsHead
     where
-        equalsHead :: Char -> [Char] -> Bool
+        equalsHead :: (Eq a) => a -> [a] -> Bool
         equalsHead _ [] = False
         equalsHead x (y:ys) = x == y
 
 matchSkipLoop :: (a -> [a] -> Bool) -> [a] -> Bool
 matchSkipLoop f []         = False
-matchSkipLoop f (x:[])     = False
-matchSkipLoop f (x:y:rest) = (f x rest) || matchSkipLoop f (y:rest)
+matchSkipLoop f [x]        = False
+matchSkipLoop f (x:y:rest) = f x rest || matchSkipLoop f (y:rest)
 
 -- Input
 run :: IO ()

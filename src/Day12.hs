@@ -2,6 +2,14 @@
 module Day12 (day12, day12', run) where
 
 import Data.Aeson
+    ( Value
+        ( Array
+        , Number
+        , Object
+        , String
+        )
+    , decode'
+    )
 import Data.ByteString.Lazy.Char8 (pack)
 import Data.Foldable (foldl)
 import Data.Maybe (fromMaybe)
@@ -29,7 +37,7 @@ sumJson' _          = 0
 addNumbers' :: Maybe Scientific ->  Value -> Maybe Scientific
 addNumbers' Nothing _          = Nothing
 addNumbers' x       (String s) = if s == "red" then Nothing else x
-addNumbers' x       v          = fmap (flip addNumbers'' $ v) x
+addNumbers' x       v          = fmap (`addNumbers''` v) x
 
 addNumbers'' :: Scientific -> Value -> Scientific
 addNumbers'' x o@(Object _) = x + sumJson' o
@@ -38,10 +46,10 @@ addNumbers'' x (Number n)   = x + n
 addNumbers'' x _            = x
 
 day12 :: String -> Scientific
-day12 input = fromMaybe (-1) (fmap sumJson . decode' . pack $ input)
+day12 input = maybe (-1) sumJson (decode' . pack $ input)
 
 day12' :: String -> Scientific
-day12' input = fromMaybe (-1) (fmap sumJson' . decode' . pack $ input)
+day12' input = maybe (-1) sumJson' (decode' . pack $ input)
 
 -- Input
 run :: IO ()

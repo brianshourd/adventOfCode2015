@@ -2,9 +2,19 @@
 module Day9 (day9, day9', run) where
 
 import Data.Attoparsec.Text
+    ( Parser
+    , char
+    , decimal
+    , endOfLine
+    , isHorizontalSpace
+    , many'
+    , string
+    , parseOnly
+    , takeTill
+    )
 import Data.Function (on)
 import Data.Map.Strict (Map)
-import qualified Data.Map.Strict as M
+import qualified Data.Map.Strict as Map (fromList)
 import Data.Monoid (Sum(..))
 import Data.Ord (comparing)
 import Data.Text (Text, pack, unpack)
@@ -22,7 +32,7 @@ data Source = Source
 type SourceData = EdgeWeightMap City Distance
 
 compileMap :: [Source] -> SourceData
-compileMap = M.fromList . map toPair
+compileMap = Map.fromList . map toPair
     where
         toPair (Source s e d) = (Edge (Node s) (Node e), d)
 
@@ -51,7 +61,7 @@ day9' = day9Impl compare
 day9Impl :: (Sum Int -> Sum Int -> Ordering) -> String -> Int
 day9Impl comp input = case parseOnly parseSourceData . pack $ input of
     (Left _) -> -1
-    (Right sourceData) -> case (bestTraversal sourceData comp) of
+    (Right sourceData) -> case bestTraversal sourceData comp of
         Nothing -> -2
         (Just t) -> getSum . traversalWeight $ t
 

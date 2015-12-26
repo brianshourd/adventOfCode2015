@@ -16,13 +16,14 @@ spec :: Spec
 spec = do
     describe "day14 parser" $ do
         it "Parses the provided input properly" $ do
-            parseInput input == Right
+            parseInput input `shouldBe` Right
                 [ Reindeer "Comet" 14 10 127
                 , Reindeer "Dancer" 16 11 162
                 ]
+
     describe "day14" $ do
         it "Given the input, after 1000 seconds, Comet is in the lead at 1120 km" $ do
-            leadReindeer rs 1000 == 1120
+            leadReindeer rs 1000 `shouldBe` 1120
               where
                 rs =
                     [ Reindeer "Comet" 14 10 127

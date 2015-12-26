@@ -27,7 +27,7 @@ day3' = size . merge . foldl move' (startState, startState)
     where
         startState = ((0, 0), insert (0, 0) empty)
         merge :: TwoState -> Set Position
-        merge ((_, ps), (_, qs)) = union ps qs
+        merge ((_, ps), (_, qs)) = ps `union` qs
 
 type TwoState = (State, State)
 

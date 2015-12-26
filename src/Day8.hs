@@ -2,19 +2,28 @@
 module Day8 (day8, day8', run) where
 
 import Data.Attoparsec.Text
+    ( Parser
+    , char
+    , choice
+    , many'
+    , notChar
+    , parseOnly
+    , string
+    , take
+    )
 import Data.Text (Text, pack, unpack)
 
 import Prelude hiding (take)
 
 day8 :: String -> Int
-day8 input = case fmap sum . sequence . map difference . lines $ input of
+day8 input = case fmap sum . mapM difference . lines $ input of
     (Right i) -> i
     _         -> -1
 
 difference :: String -> Either String Int
 difference s = do
     short <- parseOnly parseString (pack s)
-    return $ (length s) - (length short)
+    return $ length s - length short
 
 parseString :: Parser String
 parseString = do

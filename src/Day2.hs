@@ -1,9 +1,16 @@
 module Day2 (day2, day2', run) where
 
 import Control.Monad ((>=>))
-import Data.Attoparsec.ByteString.Char8
-import Data.ByteString.Char8 (pack)
-import Data.List.Split
+import Data.Attoparsec.Text
+    ( Parser
+    , char
+    , decimal
+    , endOfLine
+    , many'
+    , option
+    , parseOnly
+    )
+import Data.Text (pack)
 import Safe (readMay)
 
 day2 :: String -> Int
@@ -31,14 +38,14 @@ parseBoxes = many' $ parseBox <* option () endOfLine
 
 paperPerBox :: Box -> Int
 paperPerBox (Box x y z) = let areas = [x * y, y * z, x * z] in
-    (2 * sum areas) + (minimum areas)
+    (2 * sum areas) + minimum areas
 
 day2' :: String -> Int
 day2' = parseAndApply ribbonPerBox
 
 ribbonPerBox :: Box -> Int
 ribbonPerBox (Box x y z) = let perimiters = [2 * (x + y), 2 * (y + z), 2 * (x + z)] in
-    (x * y * z) + (minimum perimiters)
+    (x * y * z) + minimum perimiters
 
 -- Input
 run :: IO ()

@@ -1,9 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Day6 (day6, day6', run) where
 
-import Control.Applicative
-import Data.Attoparsec.ByteString.Char8
-import Data.ByteString.Char8 (pack)
+import Control.Applicative ((<|>), optional)
+import Data.Attoparsec.Text
+    ( Parser
+    , char
+    , decimal
+    , endOfLine
+    , many'
+    , parseOnly
+    , string
+    )
+import Data.Text (pack)
 
 day6 :: String -> Int
 day6 = length . filter (== On) . parseAndApply (flip applyInstructions)
@@ -18,7 +26,7 @@ data Operation = TurnOn | TurnOff | Toggle deriving (Show, Eq)
 data BulbRange = BulbRange (Int, Int) (Int, Int) deriving (Show, Eq)
 
 parseInstructions :: Parser [Instruction]
-parseInstructions = many' $ parseInstruction <* option () endOfLine
+parseInstructions = many' $ parseInstruction <* optional endOfLine
 
 parseInstruction :: Parser Instruction
 parseInstruction = do
@@ -86,8 +94,8 @@ applyOperation' Toggle  x = x + 2
 run :: IO ()
 run = do
     putStrLn "Day 6 results (cached): "
-    putStrLn $ "  377891"
-    putStrLn $ "  14110788"
+    putStrLn "  377891"
+    putStrLn "  14110788"
     --input <- readFile "inputs/day6.txt"
     --putStrLn $ "  " ++ show (day6 input)
     --putStrLn $ "  " ++ show (day6' input)

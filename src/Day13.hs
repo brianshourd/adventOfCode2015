@@ -40,7 +40,7 @@ compileMap :: [Source] -> SourceData
 compileMap [] = Map.empty
 compileMap xs =
     Map.fromList
-    . map (collapseSameSources)
+    . map collapseSameSources
     . groupBy ((==) `on` sourceEdge)
     . sortBy (compare `on` sourceEdge)
     $ xs
@@ -64,14 +64,14 @@ parseSource = do
     char ' '
     h <- decimal
     string " happiness units by sitting next to "
-    b <- takeTill (\c -> c == '.')
+    b <- takeTill (== '.')
     char '.'
     option () endOfLine
     let happiness = if gainOrLose == "gain" then h else (-h)
     return $ Source (Edge (Node a) (Node b)) (Sum happiness)
 
 allPeople :: SourceData -> [Person]
-allPeople = nub . concat . map (\(Edge (Node a) (Node b)) -> [a, b]) . Map.keys
+allPeople = nub . concatMap (\(Edge (Node a) (Node b)) -> [a, b]) . Map.keys
 
 bestFullCycle :: SourceData -> Maybe (Traversal Person Happiness)
 bestFullCycle g = case allPeople g of
@@ -84,7 +84,7 @@ bestFullCycle g = case allPeople g of
 day13 :: String -> Int
 day13 input = case parseOnly parseSourceData . pack $ input of
     (Left _) -> -1
-    (Right sourceData) -> case (bestFullCycle sourceData) of
+    (Right sourceData) -> case bestFullCycle sourceData of
         Nothing -> -2
         (Just t) -> getSum . traversalWeight $ t
 
@@ -97,7 +97,7 @@ addSelf g = Map.union (Map.fromList selfEdges) g
 day13' :: String -> Int
 day13' input = case parseOnly parseSourceData . pack $ input of
     (Left _) -> -1
-    (Right sourceData) -> case (bestFullCycle $ addSelf sourceData) of
+    (Right sourceData) -> case bestFullCycle $ addSelf sourceData of
         Nothing -> -2
         (Just t) -> getSum . traversalWeight $ t
 

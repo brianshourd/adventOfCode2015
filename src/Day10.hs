@@ -3,11 +3,11 @@ module Day10 (day10, day10', run, lookAndSay) where
 import Data.List (group)
 
 lookAndSay :: String -> String
-lookAndSay = concat . map processGroup . group
+lookAndSay = concatMap processGroup . group
 
 processGroup :: String -> String
 processGroup []     = []
-processGroup (x:xs) = (show (1 + length xs)) ++ [x]
+processGroup (x:xs) = show (1 + length xs) ++ [x]
 
 day10 :: String -> Int
 day10 = length . (!! 40) . iterate lookAndSay

@@ -8,15 +8,15 @@ import Data.List (group)
 -- doesn't count.
 requirement1 :: String -> Bool
 requirement1 []           = False
-requirement1 (x:[])       = False
-requirement1 (x:y:[])     = False
+requirement1 [x]          = False
+requirement1 [x, y]       = False
 requirement1 (x:y:z:rest) =
     ((ord y == ord x + 1) && (ord z == ord y + 1)) || requirement1 (y:z:rest)
 
 -- Passwords may not contain the letters i, o, or l, as these letters can be
 -- mistaken for other characters and are therefore confusing.
 requirement2 :: String -> Bool
-requirement2 input = all (not . (flip elem) input) ['i', 'o', 'l']
+requirement2 input = all (not . flip elem input) ['i', 'o', 'l']
 
 -- Passwords must contain at least two different, non-overlapping pairs of
 -- letters, like aa, bb, or zz.
@@ -34,7 +34,7 @@ increment :: String -> String
 increment = reverse . increment' . reverse
     where
         increment' [] = []
-        increment' (x:xs) = if x == 'z' then 'a':(increment' xs) else (chr . (+1) . ord $ x):xs
+        increment' (x:xs) = if x == 'z' then 'a' : increment' xs else (chr . (+1) . ord $ x):xs
 
 validPasswordsAfter :: String -> [String]
 validPasswordsAfter =
