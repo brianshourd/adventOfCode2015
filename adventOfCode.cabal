@@ -30,6 +30,7 @@ library
                      , Day13
                      , Day14
                      , Day15
+                     , Day16
                      , Graph
   build-depends:       base >= 4.7 && < 5
                      , aeson
@@ -59,6 +60,7 @@ test-suite adventOfCode-test
   main-is:             Spec.hs
   build-depends:       base
                      , adventOfCode
+                     , containers
                      , hspec-discover
                      , hspec
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
