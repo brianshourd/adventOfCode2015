@@ -1,8 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Day15Spec (spec) where
 
-import Day15
+import Data.List (sort)
+
 import Test.Hspec
+
+import Day15
 
 main :: IO ()
 main = hspec spec
@@ -25,6 +28,20 @@ spec = do
         it "Parses the provided input properly" $ do
             parseInput rawInput `shouldBe` Right parsedInput
 
+    describe "partitions" $ do
+        it "There are 11 partitions of 10 of size 2" $ do
+            (length $ partitions 2 10) `shouldBe` 11
+
+        it "There are 66 partitions of 10 of size 3" $ do
+            (length $ partitions 3 10) `shouldBe` 66
+
+        it "The partitions of 3 of size 2 are calculated" $ do
+            partitions 2 3 `shouldMatchList` [[0,3],[1,2],[2,1],[3,0]]
+
     describe "day15" $ do
         it "Given the input, the highest total score is 62842880" $ do
             highestCookieScore parsedInput `shouldBe` 62842880
+
+    describe "day15'" $ do
+        it "Given the input, the highest total score is 57600000" $ do
+            highestCookieScore' parsedInput `shouldBe` 57600000
