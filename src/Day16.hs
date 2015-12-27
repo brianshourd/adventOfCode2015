@@ -57,7 +57,7 @@ applyClueImpl (clueText, cluePred) = Set.filter doesNotConflict
         return $ cluePred memVal
 
 playGuessWho :: [Clue] -> Set SueMemory -> Maybe Int
-playGuessWho cs ms = playGuessWho' (map (\(ct, cv) -> (ct, (== cv))) cs) ms
+playGuessWho cs = playGuessWho' (map (\(ct, cv) -> (ct, (== cv))) cs)
 
 playGuessWho' :: [(Text, Int -> Bool)] -> Set SueMemory -> Maybe Int
 playGuessWho' cs ms = case Set.toList . foldr applyClueImpl ms $ cs of
